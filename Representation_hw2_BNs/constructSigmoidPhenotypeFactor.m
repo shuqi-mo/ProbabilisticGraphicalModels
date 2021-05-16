@@ -44,11 +44,30 @@ phenotypeFactor = struct('var', [], 'card', [], 'val', []);
 % INSERT YOUR CODE HERE
 % Note that computeSigmoid.m will be useful for this function.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
-
+numPhenotype = 2;
+numGene = length(alleleWeights);
 % Fill in phenotypeFactor.var.  This should be a 1-D row vector.
+phenotypeFactor.var = [phenotypeVar, geneCopyVarOneList', geneCopyVarTwoList'];
 % Fill in phenotypeFactor.card.  This should be a 1-D row vector.
+allelesCard = zeros(1, numGene);
+for i=1:numGene
+  allelesCard(i) = length(alleleWeights{i});
+end
+phenotypeFactor.card = [numPhenotype allelesCard allelesCard];
 
 phenotypeFactor.val = zeros(1, prod(phenotypeFactor.card));
 % Replace the zeros in phentoypeFactor.val with the correct values.
-
+for i = 1 : length(phenotypeFactor.val)
+  assignment = IndexToAssignment(i, phenotypeFactor.card);
+  phenotypeVal = assignment(1);
+  geneCopyValOneList = assignment(2:numGene+1);
+  geneCopyValTwoList = assignment(numGene+2:end);
+  for j = 1 : numGene
+    phenotypeFactor.val(i) = phenotypeFactor.val(i) + alleleWeights{j}(geneCopyValOneList(j)) + alleleWeights{j}(geneCopyValTwoList(j));
+  endfor
+  phenotypeFactor.val(i) = computeSigmoid(phenotypeFactor.val(i));
+  if phenotypeVal == 2
+    phenotypeFactor.val(i) = 1 - phenotypeFactor.val(i);
+  endif
+endfor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
